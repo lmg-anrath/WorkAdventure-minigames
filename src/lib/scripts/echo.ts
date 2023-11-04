@@ -1,4 +1,4 @@
-export function getPrintValue(input: string) {
+export function returnEcho(input: string) {
     // Überprüfe, ob 'echo ' am Anfang der Zeichenfolge vorhanden ist
     if (/^echo\s+/.test(input)) {
         // Verwende replace, um 'echo ' zu entfernen

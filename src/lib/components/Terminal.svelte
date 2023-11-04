@@ -1,6 +1,6 @@
 <script lang="ts">
     import { Card, Input } from 'flowbite-svelte';
-    import { getPrintValue } from '$lib/scripts/print';
+    import { returnEcho } from '$lib/scripts/echo';
 	import { calculateExpression, isCalculation } from '$lib/scripts/calculator';
     import '@fortawesome/fontawesome-free/css/all.min.css'
 
@@ -15,7 +15,7 @@
         }
 
         if (inputValue.startsWith('echo')) {
-            addText(getPrintValue(inputValue) || 'Ein Fehler ist aufgetreten!' as string, true)
+            addText(returnEcho(inputValue) || 'Ein Fehler ist aufgetreten!' as string, true)
             return;
         }
         if (inputValue.match('help')) {
