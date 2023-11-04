@@ -24,6 +24,7 @@
     "vite": "^4.4.5"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.4.2",
     "@popperjs/core": "^2.11.8",
     "@svelteuidev/core": "^0.15.3",
     "flowbite": "^1.8.1",

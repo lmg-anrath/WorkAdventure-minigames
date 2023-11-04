@@ -1,15 +1,10 @@
-export function getPrintValue(input: string){
-    const matches = input.match(/print\("([^"]+)"\)/g);
-
-    // Extrahiere den Inhalt aus den gefundenen Übereinstimmungen
-    if (matches) {
-        const extractedContents = matches.map(match => {
-            const contentMatch = /print\("([^"]+)"\)/.exec(match);
-            return contentMatch ? contentMatch[1] : null;
-        });
-
-        return extractedContents as unknown as string;
+export function getPrintValue(input: string) {
+    // Überprüfe, ob 'echo ' am Anfang der Zeichenfolge vorhanden ist
+    if (/^echo\s+/.test(input)) {
+        // Verwende replace, um 'echo ' zu entfernen
+        const result = input.replace(/^echo\s+/, '');
+        return '"' + result + '"';
+    } else {
+        return 'Fehler: Kein "echo" gefunden.';
     }
-
-    return undefined;
 }
