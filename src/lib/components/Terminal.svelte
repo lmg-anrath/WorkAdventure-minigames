@@ -8,7 +8,7 @@
     let inputValue: string = "";
     let htmlContainer: any;
 
-    function myFunction() {
+    function processInput() {
         if (isCalculation(inputValue)) {
             addText(calculateExpression(inputValue), true)
             return
@@ -98,7 +98,7 @@
             bind:value={inputValue}
             on:keydown={(e) => {
                 if (e.key === 'Enter') {
-                    myFunction();
+                    processInput();
                 }
             }}
         />

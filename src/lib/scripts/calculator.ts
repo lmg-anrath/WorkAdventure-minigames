@@ -5,7 +5,6 @@ export function isCalculation(input: string) {
     return matches.length > 0;
 }
 
-
 export function calculateExpression(input: string) {
     try {
        return eval(input);
