@@ -1,7 +1,7 @@
 # WorkAdventure Mini Games
 
 ## TODO
-- [ ] lightweight terminal
+- [x] lightweight terminal
     - [ ] introduction in commands
 - [ ] simple programming interface
     - [ ] Java emulator
