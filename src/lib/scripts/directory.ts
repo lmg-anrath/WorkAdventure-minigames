@@ -24,7 +24,7 @@ export class FileSystem {
         };
         this.currentNode = this.root;
     }
-
+ 
     navigateToPath(path: string) {
         path = this.getCurrentPath() != path ? this.getCurrentPath() + "/" + path : path
         const pathArray = path.split("/").filter((p) => p);

@@ -4,7 +4,7 @@
 	import { calculateExpression, isCalculation } from '$lib/scripts/calculator';
     import { endGame, gameMessage, getCurrentLevel, isGameStarted, levelUp, quitGame, startGame } from '$lib/scripts/game';
     import { FileSystem, extractPathFromCd } from '$lib/scripts/directory';
-    import { nano } from '$lib/scripts/nano';
+    import { cat } from '$lib/scripts/cat';
     import '@fortawesome/fontawesome-free/css/all.min.css'
 
     let fileSystem = new FileSystem();
@@ -15,7 +15,44 @@
     function processInput() {
         inputValue = inputValue.toLocaleLowerCase();
 
-        if (inputValue.startsWith('echo ')) {
+        registerCommand(inputValue)
+
+        if (inputValue.startsWith('clear')) {
+            let commandArray = inputValue.split(' ');
+            let clearCount = commandArray[1] ? parseInt(commandArray[1]) : -1;
+
+            let lines = htmlContainer.innerHTML.split('<br>');
+            if (clearCount > 0) {
+                if (clearCount >= lines.length - 1) {
+                    // Löscht alle Zeilen, wenn die eingegebene Zahl die aktuelle Anzahl an Zeilen übertrifft
+                    clearCount = -1;
+                } else {
+                    // Löscht die angegebene Anzahl von Zeilen
+                    lines.splice(-clearCount - 1, clearCount);
+                    htmlContainer.innerHTML = lines.join('<br>');
+                }
+            }
+
+            if (clearCount === -1) {
+                htmlContainer.innerHTML = textInput = fileSystem.getCurrentPath() + "@user:~# Willkommen (gebe 'help' für Hilfe ein.)";
+            }
+
+            // Wenn der Spieler Level 1 geschafft hat, muss dieser den Command clear finden und eingeben.
+            if (isGameStarted() && getCurrentLevel() == 1 && inputValue === "clear") {
+                levelUp()
+                addText(gameMessage(), false)
+            }
+
+            inputValue = "";
+            return;
+        }
+
+        if (inputValue.startsWith('echo')) {
+            if (!inputValue.includes(" ")) {
+                addText('Invalid Usage of command \'echo\'!', false)
+                return
+            }
+
             addText(returnEcho(inputValue) || 'Ein Fehler ist aufgetreten!' as string, true)
 
             // Falls das Spiel gestartet ist, und der Spieler bei Level 0 ist, wird die Fortsetzung ausgeführt.
@@ -27,18 +64,28 @@
             return;
         }
 
-        if (inputValue.startsWith('nano ')) {
+        if (inputValue.startsWith('cat')) {
+            if (!inputValue.includes(" ")) {
+                addText('Invalid Usage of command \'cat\'!', false)
+                return
+            }
+
             const fileName = inputValue.split(" ")[1]
             if (isGameStarted() && getCurrentLevel() == 2 && fileSystem.getCurrentPath() + '/' + fileName == '/home/user/file1') {
                 levelUp()
                 addText(gameMessage(), false)
             }
 
-            addText(nano(fileSystem.getFileData(fileName)), false)
+            addText(cat(fileSystem.getFileData(fileName)), false)
             return
         }
 
-        if (inputValue.startsWith('cd ')) {
+        if (inputValue.startsWith('cd')) {
+            if (!inputValue.includes(" ")) {
+                addText('Invalid Usage of command \'cd\'!', false)
+                return
+            }
+
             addText(fileSystem.navigateToPath(extractPathFromCd(inputValue)), false)
             
             if (isGameStarted() && getCurrentLevel() == 3 && fileSystem.getCurrentPath() == '/') {
@@ -51,7 +98,7 @@
         }
 
         if (inputValue.match('help')) {
-            addText('\nHELP INFO:\n\nhelp -> Liste aller Befehle\nclear -> Löscht alle Nachrichten aus der Konsole\nquit -> Verlässt die Konsole\nstart -> Neues Spiel starten\nexit -> Spiel verlassen\ngame -> Sehe alle Infos über dein aktuelles Spiel\nls -> Liste aller Dateien/Verzeichnisse im aktuellen Verzeichnis\ncd ~Verzeichnis -> Navigiere zum Verzeichnis xy\nnano ~Datei -> Öffne Datei xy und lesen ihren Inhalt', false)
+            addText('\nHELP INFO:\n\nhelp -> Liste aller Befehle\nclear -> Löscht alle Nachrichten aus der Konsole\nquit -> Verlässt die Konsole\nstart -> Neues Spiel starten\nexit -> Spiel verlassen\ngame -> Sehe alle Infos über dein aktuelles Spiel\nls -> Liste aller Dateien/Verzeichnisse im aktuellen Verzeichnis\ncd VerzeichnisName -> Navigiere zum Verzeichnis xy\nnano DateiName -> Öffne Datei xy und lesen ihren Inhalt', false)
             return;
         }
 
@@ -61,18 +108,6 @@
         }
 
         switch (inputValue) {
-            case 'clear':
-                inputValue = "";
-                htmlContainer.innerHTML = textInput = fileSystem.getCurrentPath() + "@user:~# Willkommen (gebe 'help' für Hilfe ein.)";
-
-                // Wenn der Spieler Level 1 geschafft hat, muss dieser den Command clear finden und eingeben.
-                if (isGameStarted() && getCurrentLevel() == 1) {
-                    levelUp()
-                    addText(gameMessage(), false)
-                }
-
-                break;
-
             case 'ls':
                 addText(fileSystem.listPathContent(), false)
                 break;
@@ -125,6 +160,11 @@
         let newInnerHTML = textInput += '<br/> ' + fileSystem.getCurrentPath() + '@user:~# ' + value;
         htmlContainer.innerHTML = newInnerHTML;
         inputValue = "";
+    }
+
+    function registerCommand(value: string) {
+        let newInnerHTML = textInput += '<br/> ' + fileSystem.getCurrentPath() + '@user:~# ' + value;
+        htmlContainer.innerHTML = newInnerHTML;
     }
 
     let innerWidth = 0
