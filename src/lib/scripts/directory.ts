@@ -14,8 +14,8 @@ export class FileSystem {
                             type: "directory",
                             name: "user",
                             content: {
-                                file1: { type: "file", name: "file1.txt", data: "File1 content" },
-                                file2: { type: "file", name: "file2.txt", data: "File2 content" },
+                                file1: { type: "file", name: "file1", data: "File1 content" },
+                                file2: { type: "file", name: "file2", data: "File2 content" },
                             },
                         },
                     },
@@ -34,7 +34,9 @@ export class FileSystem {
             const item = pathArray[i];
             if (item === "..") {
                 currentNode = this.getParent(currentNode.name) || currentNode;
-            } else if (currentNode.content && currentNode.content[item]) {
+            } else if (currentNode?.content[item]?.type == 'file') {
+                return "Cannot cd into a file";
+            } else if (currentNode?.content[item]) {
                 currentNode = currentNode.content[item];
             } else {
                 return "Path not found";

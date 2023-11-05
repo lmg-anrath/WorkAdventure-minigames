@@ -2,7 +2,7 @@
     import { Card, Input } from 'flowbite-svelte';
     import { returnEcho } from '$lib/scripts/echo';
 	import { calculateExpression, isCalculation } from '$lib/scripts/calculator';
-    import { gameMessage, getCurrentLevel, isGameStarted, levelUp, quitGame, startGame } from '$lib/scripts/game';
+    import { endGame, gameMessage, getCurrentLevel, isGameStarted, levelUp, quitGame, startGame } from '$lib/scripts/game';
     import { FileSystem, extractPathFromCd } from '$lib/scripts/directory';
     import { nano } from '$lib/scripts/nano';
     import '@fortawesome/fontawesome-free/css/all.min.css'
@@ -28,18 +28,30 @@
         }
 
         if (inputValue.startsWith('nano ')) {
-            addText(nano(fileSystem.getFileData(inputValue.split(" ")[1])), false)
+            const fileName = inputValue.split(" ")[1]
+            if (isGameStarted() && getCurrentLevel() == 2 && fileSystem.getCurrentPath() + '/' + fileName == '/home/user/file1') {
+                levelUp()
+                addText(gameMessage(), false)
+            }
+
+            addText(nano(fileSystem.getFileData(fileName)), false)
             return
         }
 
         if (inputValue.startsWith('cd ')) {
             addText(fileSystem.navigateToPath(extractPathFromCd(inputValue)), false)
-            inputValue = ""
+            
+            if (isGameStarted() && getCurrentLevel() == 3 && fileSystem.getCurrentPath() == '/') {
+                levelUp()
+                addText(gameMessage(), false)
+                endGame()
+            }
+
             return
         }
 
-        if (inputValue.match('help ')) {
-            addText('\nHELP INFO:\n\nhelp -> Liste aller Befehle\nclear -> Löscht alle Nachrichten aus der Konsole\nquit -> Verlässt die Konsole', false)
+        if (inputValue.match('help')) {
+            addText('\nHELP INFO:\n\nhelp -> Liste aller Befehle\nclear -> Löscht alle Nachrichten aus der Konsole\nquit -> Verlässt die Konsole\nstart -> Neues Spiel starten\nexit -> Spiel verlassen\ngame -> Sehe alle Infos über dein aktuelles Spiel\nls -> Liste aller Dateien/Verzeichnisse im aktuellen Verzeichnis\ncd ~Verzeichnis -> Navigiere zum Verzeichnis xy\nnano ~Datei -> Öffne Datei xy und lesen ihren Inhalt', false)
             return;
         }
 
@@ -88,6 +100,18 @@
                     return
                 }
 
+                addText('Derzeit läuft kein Spiel... Verwende \'start\' um ein Spiel zu starten.', false)
+                break
+
+            case 'game':
+                if (!isGameStarted()) {
+                    addText('Derzeit läuft kein Spiel... Verwende \'start\' um ein Spiel zu starten.', false)
+                    return
+                }
+
+                addText('SPIEL:\nLevel: ' + getCurrentLevel() + '\nPunkte: TODO', false)
+                break;
+
             default:
                 addText('Unbekannter Befehl: \'' + inputValue + '\' gebe \'help\' für Hilfe ein.', false)
         }
@@ -115,6 +139,8 @@
     }
 </script>
 
+
+
 <svelte:window bind:innerWidth bind:innerHeight />
 
 {#if bigScreen || showCard}
@@ -139,11 +165,11 @@
     <!-- svelte-ignore a11y-no-static-element-interactions -->
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <span on:click={toggleCard} class="cursor-pointer">
-        <i class="absolute fa-solid fa-circle-info animate-bounce top-4 ml-4 mr-4" style="color: #ffffff"></i>
+        <i class="absolute fa-solid fa-circle-info animate-bounce min-[800px]:top-16 xs:top-240 ml-4 mr-4" style="color: #ffffff"></i>
     </span>
 {/if}
 
-<Card class="bg-black border-transparent m-8" size="lg" padding="xl">
+<Card class="bg-black border-transparent m-8 text-ellipsis overflow-hidden overflow-y-auto" size="lg" padding="xl">
     <div class="text-area min-[800px]:w-[39rem] min-[800px]:h-[40rem]">
         <div bind:this={htmlContainer} class="console-content">
             {textInput}
@@ -152,6 +178,8 @@
             class="bg-transparent border-slate-600 active:border-transparent text-inherit mt-2"
             id="large-input"
             size="sm"
+            autocomplete="off" 
+            aria-autocomplete="none"
             bind:value={inputValue}
             on:keydown={(e) => {
                 if (e.key === 'Enter') {
@@ -161,6 +189,7 @@
         />
     </div>
 </Card>
+
 
 
 <style>
