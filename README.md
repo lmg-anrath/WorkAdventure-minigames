@@ -2,6 +2,7 @@
 
 ## TODO
 - [x] lightweight terminal
-    - [ ] introduction in commands
+    - [x] introduction in commands
+    - [x] terminal game
 - [ ] simple programming interface
     - [ ] Java emulator
